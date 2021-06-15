@@ -84,20 +84,14 @@ function Background() {
 			this.y = 0;
 	};
 }
-// Defina o fundo para herdar as propriedades do Drawable
 Background.prototype = new Drawable();
 
 
-/**
-   Cria o objeto Bullet que o navio dispara. As balas são
- * desenhado na tela "principal".
- */
+
 function Bullet(object) {
 	this.alive = false; // É verdadeiro se o marcador estiver em uso
 	var self = object;
-	/*
-	 * Define os valores dos marcadores
-	 */
+
 	this.spawn = function(x, y, speed) {
 		this.x = x;
 		this.y = y;
@@ -130,9 +124,7 @@ function Bullet(object) {
 		}
 	};
 
-	/*
-	 * Redefine os valores dos marcadores
-	 */
+
 	this.clear = function() {
 		this.x = 0;
 		this.y = 0;
@@ -156,9 +148,7 @@ function QuadTree(boundBox, lvl) {
 	var level = lvl || 0;
 	var maxLevels = 5;
 
-	/*
-	 * Limpa o quadTree e todos os nós de objetos
-	 */
+
 	this.clear = function() {
 		objects = [];
 
@@ -169,9 +159,7 @@ function QuadTree(boundBox, lvl) {
 		this.nodes = [];
 	};
 
-	/*
-	 * Pegue todos os objetos no quadTree
-	 */
+
 	this.getAllObjects = function(returnedObjects) {
 		for (var i = 0; i < this.nodes.length; i++) {
 			this.nodes[i].getAllObjects(returnedObjects);
@@ -184,9 +172,7 @@ function QuadTree(boundBox, lvl) {
 		return returnedObjects;
 	};
 
-	/*
-	 * Retorne todos os objetos com os quais o objeto poderia colidir
-	 */
+
 	this.findObjects = function(returnedObjects, obj) {
 		if (typeof obj === "undefined") {
 			console.log("UNDEFINED OBJECT");
@@ -231,7 +217,7 @@ function QuadTree(boundBox, lvl) {
 
 		objects.push(obj);
 
-		// Impedir divisão infinita
+
 		if (objects.length > maxObjects && level < maxLevels) {
 			if (this.nodes[0] == null) {
 				this.split();
@@ -251,23 +237,19 @@ function QuadTree(boundBox, lvl) {
 		}
 	};
 
-	/*
-	 *Determine a qual nó o objeto pertence. -1 significa
-	* objeto não pode caber completamente em um nó e faz parte
-	* do nó atual
-	 */
+
 	this.getIndex = function(obj) {
 
 		var index = -1;
 		var verticalMidpoint = this.bounds.x + this.bounds.width / 2;
 		var horizontalMidpoint = this.bounds.y + this.bounds.height / 2;
 
-		// O objeto pode caber completamente no quadrante superior
+
 		var topQuadrant = (obj.y < horizontalMidpoint && obj.y + obj.height < horizontalMidpoint);
-		// O objeto pode caber completamente no quandrant inferior
+
 		var bottomQuadrant = (obj.y > horizontalMidpoint);
 
-		//O objeto pode caber completamente nos quadrantes esquerdos
+
 		if (obj.x < verticalMidpoint &&
 				obj.x + obj.width < verticalMidpoint) {
 			if (topQuadrant) {
@@ -277,7 +259,7 @@ function QuadTree(boundBox, lvl) {
 				index = 2;
 			}
 		}
-		// O objeto pode ser corrigido completamente dentro dos dilemas certos
+
 		else if (obj.x > verticalMidpoint) {
 			if (topQuadrant) {
 				index = 0;
@@ -290,9 +272,6 @@ function QuadTree(boundBox, lvl) {
 		return index;
 	};
 
-	/*
-	 * Divide o nó em 4 subnós
-	 */
 	this.split = function() {
 		// Bitwise ou [html5rocks]
 		var subWidth = (this.bounds.width / 2) | 0;
@@ -326,7 +305,7 @@ function QuadTree(boundBox, lvl) {
 }
 
 function Pool(maxSize) {
-	var size = maxSize; // Máximo de balas permitido na piscina
+	var size = maxSize; 
 	var pool = [];
 
 	this.getPool = function() {
@@ -339,13 +318,11 @@ function Pool(maxSize) {
 		return obj;
 	}
 
-	/*
-	 * Preenche a matriz de pool com o objeto fornecido
-	 */
+
 	this.init = function(object) {
 		if (object == "bullet") {
 			for (var i = 0; i < size; i++) {
-				// Inicializando o objeto
+
 				var bullet = new Bullet("bullet");
 				bullet.init(0,0, imageRepository.bullet.width,
 										imageRepository.bullet.height);
@@ -374,10 +351,7 @@ function Pool(maxSize) {
 		}
 	};
 
-	/*
-	 * Pega o último item da lista, inicializa-o e
-	* empurra-o para a frente do array.
-	 */
+
 	this.get = function(x, y, speed) {
 		if(!pool[size - 1].alive) {
 			pool[size - 1].spawn(x, y, speed);
@@ -394,7 +368,7 @@ function Pool(maxSize) {
 
 	this.animate = function() {
 		for (var i = 0; i < size; i++) {
-			// Só desenhe até encontrarmos uma bala que não está viva
+
 			if (pool[i].alive) {
 				if (pool[i].draw()) {
 					pool[i].clear();
@@ -421,7 +395,7 @@ function Ship() {
 	};
 	this.move = function() {
 		counter++;
-		// Determine se a ação é uma ação de movimento
+
 		if (KEY_STATUS.left || KEY_STATUS.right ||
 				KEY_STATUS.down || KEY_STATUS.up) {
 
@@ -542,20 +516,18 @@ Enemy.prototype = new Drawable();
 function Game() {
 
 	this.init = function() {
-		//Obtenha os elementos da tela
+
 		this.bgCanvas = document.getElementById('background');
 		this.shipCanvas = document.getElementById('ship');
 		this.mainCanvas = document.getElementById('main');
 
-		// Teste para ver se a tela é compatível. Só precisa de
-		// verifique uma tela
+
 		if (this.bgCanvas.getContext) {
 			this.bgContext = this.bgCanvas.getContext('2d');
 			this.shipContext = this.shipCanvas.getContext('2d');
 			this.mainContext = this.mainCanvas.getContext('2d');
 
-			// Inicialize objetos para conter seu contexto e tela
-			// em formação
+
 			Background.prototype.context = this.bgContext;
 			Background.prototype.canvasWidth = this.bgCanvas.width;
 			Background.prototype.canvasHeight = this.bgCanvas.height;
@@ -572,7 +544,7 @@ function Game() {
 			Enemy.prototype.canvasWidth = this.mainCanvas.width;
 			Enemy.prototype.canvasHeight = this.mainCanvas.height;
 
-			// Inicialize o objeto de fundo
+
 			this.background = new Background();
 			this.background.init(0,0); // Set draw point to 0,0
 
@@ -604,7 +576,7 @@ function Game() {
 			this.enemyBulletPool = new Pool(50);
 			this.enemyBulletPool.init("enemyBullet");
 
-			// Iniciar QuadTree
+
 			this.quadTree = new QuadTree({x:0,y:0,width:this.mainCanvas.width,height:this.mainCanvas.height});
 
 			return true;
@@ -613,7 +585,7 @@ function Game() {
 		}
 	};
 
-	// Comece o loop de animação
+
 	this.start = function() {
 		this.ship.draw();
 		animate();
@@ -622,7 +594,7 @@ function Game() {
 
 
 function animate() {
-	// Inserir objetos em quadtree
+
 	game.quadTree.clear();
 	game.quadTree.insert(game.ship);
 	game.quadTree.insert(game.ship.bulletPool.getPool());
@@ -631,7 +603,7 @@ function animate() {
 
 	detectCollision();
 
-	// Animar objetos de jogo
+
 	requestAnimFrame( animate );
 	game.background.draw();
 	game.ship.move();
@@ -664,7 +636,7 @@ function detectCollision() {
 
 
 
-// Os códigos de tecla que serão mapeados quando um usuário pressionar um botão.
+
 KEY_CODES = {
   32: 'space',
   37: 'left',
@@ -674,24 +646,13 @@ KEY_CODES = {
 }
 
 
-// Cria a matriz para conter o KEY_CODES e define todos os seus valores
-// para verdadeiro. Verificar true / flase é a maneira mais rápida de verificar o status
-// de uma tecla pressionada e qual foi pressionada ao determinar
-// quando mover e em que direção.
 KEY_STATUS = {};
 for (code in KEY_CODES) {
   KEY_STATUS[KEY_CODES[code]] = false;
 }
-/**
- 
-* Configura o documento para ouvir eventos onkeydown (disparado quando
- * qualquer tecla do teclado é pressionada). Quando uma tecla é pressionada,
- * define a direção apropriada como verdadeira para nos informar qual
- * chave era.
- */
+
 document.onkeydown = function(e) {
-// Firefox e opera usam charCode em vez de keyCode para
-// retorna qual tecla foi pressionada.
+
 	var keyCode = (e.keyCode) ? e.keyCode : e.charCode;
   if (KEY_CODES[keyCode]) {
 		e.preventDefault();
